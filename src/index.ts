@@ -4,6 +4,7 @@ import axios from "axios";
 import stealthPlugin from "puppeteer-extra-plugin-stealth";
 import { EventEmitter } from "events";
 import { magenta, bgWhite, green, cyan, yellowBright, red, bgRed } from "chalk";
+import "../typings/types";
 
 import { config } from "dotenv";
 config();
@@ -20,6 +21,7 @@ puppeteer.use(stealthPlugin());
 type GeneratorOptions = {
   use2captcha?: boolean
 }
+
 
 class Generator extends EventEmitter {
   private _use2captcha: boolean
@@ -41,7 +43,7 @@ class Generator extends EventEmitter {
     });
     console.log(`${K} ${SUCCESS} browser launched.`);
     this.emit("browserLaunched");
-    return this._browser
+    return this._browser;
   }
 };
 
