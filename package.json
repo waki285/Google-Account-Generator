@@ -25,6 +25,7 @@
     "axios": "^0.24.0",
     "chalk": "^4.1.2",
     "dotenv": "^11.0.0",
+    "node-bin-setup": "^1.1.0",
     "puppeteer": "^13.0.1",
     "puppeteer-extra": "^3.2.3",
     "puppeteer-extra-plugin-stealth": "^2.9.0"
