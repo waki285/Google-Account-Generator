@@ -75,7 +75,7 @@ class Generator extends StrictEventEmitter {
     console.log(`${K} ${SUCCESS} success go to google register page.`);
     this.emit("wentToGoogle");
     return page;
-  }
+  };
 };
 
 (async () => {
