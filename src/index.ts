@@ -6,6 +6,7 @@ import { EventEmitter } from "events";
 import { magenta, bgWhite, green, cyan, yellowBright, red, bgRed } from "chalk";
 import { name } from "faker";
 import { config } from "dotenv";
+import { readFile } from "fs/promises"
 config();
 
 const K = `[${magenta("*")}] ${bgWhite.black("GAG")}`;
@@ -29,6 +30,13 @@ class GAGError extends Error {
 }
 
 type GeneratorEvents = "browserLaunched" | "wentToGoogle";
+
+interface Infos {
+  firstName: string;
+  lastName: string;
+  username: string;
+  password: string;
+}
 
 class StrictEventEmitter extends EventEmitter {
   on(eventName: GeneratorEvents, listener: (...args: any[]) => void): this {
@@ -64,18 +72,36 @@ class Generator extends StrictEventEmitter {
       ]
     });
     console.log(`${K} ${SUCCESS} browser launched.`);
-    this.emit("browserLaunched");
+    this.emit("browserLaunched", this._browser);
     return this._browser;
   }
   async gotoGoogle(): Promise<Page> {
     if (!this._browser) throw new GAGError("You don't launch browser! please run generator.launch()");
     console.log(`${K} ${INFO} go to https://google.com register page.`);
     const page: Page = (await this._browser.pages())[0] || await this._browser.newPage();
-    await page.goto("https://accounts.google.com/signup/v2/webcreateaccount?continue=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dgoogle%26rlz%3D1C1FQRR_jaJP983JP983%26oq%3Dgoogle%26aqs%3Dchrome..69i57j0i271l3.579j0j1%26sourceid%3Dchrome%26ie%3DUTF-8&hl=ja&dsh=S-1139929386%3A1642222684357616&biz=false&flowName=GlifWebSignIn&flowEntry=SignUp")
+    await page.goto("https://accounts.google.com/signup/v2/webcreateaccount?continue=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3Dgoogle%26rlz%3D1C1FQRR_jaJP983JP983%26oq%3Dgoogle%26aqs%3Dchrome..69i57j0i271l3.579j0j1%26sourceid%3Dchrome%26ie%3DUTF-8&hl=en&dsh=S-1139929386%3A1642222684357616&biz=false&flowName=GlifWebSignIn&flowEntry=SignUp")
     console.log(`${K} ${SUCCESS} success go to google register page.`);
-    this.emit("wentToGoogle");
+    this.emit("wentToGoogle", page);
     return page;
   };
+  async typeInfo(): Promise<Infos> {
+    if (!this._browser) throw new GAGError("You don't launch browser! please run generator.launch()");
+    const page = (await this._browser.pages())[0];
+    if (!page) throw new GAGError("You don't open google! please run generator.gotoGoogle()"); 
+    console.log(`${K} ${INFO} type infos.`);
+    const firstName: string = name.firstName();
+    const lastName: string = name.lastName();
+    console.log(`${K} ${INFO} type first name and last name ${firstName} ${lastName}`);
+    await page.type("input[name=firstName]", firstName);
+    await page.type("input[name=lastName]", lastName);
+    const emails: string = await readFile("./config/emails.txt", "utf-8");
+    if (emails) {
+      const emailList: string[] = emails.split("\n");
+      const email = emailList[Math.floor(Math.random() * emailList.length)];
+      console.log(`${K} ${INFO} email name used ${email}@gmail.com`);
+      await page.type()
+    }
+  }
 };
 
 (async () => {
